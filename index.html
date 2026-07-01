@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MSQ Assistant</title>
+    
+    <!-- Lien vers le fichier CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    
+    <!-- Polices Google (Poppins pour un look moderne) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    
+    <!-- Image de fond -->
+    <div class="background-image"></div>
+
+    <!-- Conteneur principal du tableau de bord -->
+    <main class="dashboard-container">
+        
+        <!-- En-tête : Logo et Météo -->
+        <header class="top-bar">
+            <div class="logo-container">
+                <img src="assets/images/logo-msq.svg" alt="Logo MSQ Assistant" id="msq-logo">
+                <span>MSQ Assistant</span>
+            </div>
+            <div class="weather-widget" id="weather-widget">
+                <!-- La météo sera injectée ici par le JS -->
+                <span id="weather-temp">--°C</span>
+            </div>
+        </header>
+
+        <!-- Widget Central : Heure et Date -->
+        <section class="time-widget">
+            <h1 id="clock-time">00:00</h1>
+            <p id="clock-date">Chargement de la date...</p>
+        </section>
+
+        <!-- Grille des widgets inférieurs (To-Do et Notes) -->
+        <section class="widgets-grid">
+            
+            <!-- Widget To-Do List -->
+            <div class="widget card">
+                <h2>Mes Tâches</h2>
+                <ul id="todo-list">
+                    <!-- Les tâches seront générées ici -->
+                </ul>
+                <div class="input-group">
+                    <input type="text" id="todo-input" placeholder="Nouvelle tâche...">
+                    <button id="add-todo-btn">+</button>
+                </div>
+            </div>
+
+            <!-- Widget Notes -->
+            <div class="widget card">
+                <h2>Notes rapides</h2>
+                <textarea id="notes-area" placeholder="Écrivez quelque chose ici... Vos notes sont sauvegardées automatiquement."></textarea>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- Lien vers le fichier JavaScript -->
+    <script src="js/app.js"></script>
+</body>
+</html>
