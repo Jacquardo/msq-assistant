@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "MSQ Assistant",
+  "version": "2.0.0",
+  "description": "Votre assistant personnel de productivité directement dans votre navigateur. Tout ce dont vous avez besoin au même endroit.",
+  "chrome_url_overrides": {
+    "newtab": "index.html"
+  },
+  "icons": {
+    "16": "assets/icons/icon-16.png",
+    "32": "assets/icons/icon-32.png",
+    "48": "assets/icons/icon-48.png",
+    "128": "assets/icons/icon-128.png"
+  },
+  "permissions": [
+    "storage"
+  ],
+  "background": {
+    "service_worker": "js/background.js",
+    "type": "module"
+  }
+}
