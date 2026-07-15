@@ -213,7 +213,16 @@
                 <span class="icon">⚙️</span><span>Réglages</span>
             </button>
         </nav>
-
+        
+<!-- Bannière d'installation PWA -->
+        <div id="pwa-install-banner" style="display: none; position: absolute; bottom: 80px; left: 15px; right: 15px; background: var(--card-bg); padding: 15px; border-radius: 12px; box-shadow: 0 -4px 20px rgba(0,0,0,0.15); z-index: 100; text-align: center; border: 2px solid var(--msq-mint);">
+            <h3 style="font-size: 1rem; margin-bottom: 5px; color: var(--text-main);">📱 Installer MSQ Assistant</h3>
+            <p style="font-size: 0.8rem; color: var(--text-light); margin-bottom: 15px;">Ajoutez l'application à votre écran d'accueil pour une meilleure expérience.</p>
+            <div style="display: flex; gap: 10px;">
+                <button id="btn-pwa-dismiss" class="btn-cancel" style="flex: 1;">Plus tard</button>
+                <button id="btn-pwa-install" class="btn-primary" style="margin-top: 0; flex: 2;">Installer</button>
+            </div>
+        </div>
     </main>
 
     <!-- Script pour PWA -->
