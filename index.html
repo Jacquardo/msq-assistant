@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MSQ Assistant</title>
     
-    <!-- Liens pour la PWA -->
     <link rel="manifest" href="site.webmanifest">
     <meta name="theme-color" content="#1abc9c">
     <link rel="icon" href="assets/icons/icon-128.png">
@@ -17,8 +16,10 @@
 </head>
 <body>
 
+    <!-- Image de fond qui prendra tout l'écran -->
     <div class="background-image"></div>
 
+    <!-- Le "téléphone virtuel" centré -->
     <main class="dashboard-container">
         
         <header class="top-bar">
@@ -33,23 +34,20 @@
         </header>
 
         <div id="pages-container">
-            
             <!-- PAGE 1 : ACCUEIL -->
             <div id="accueil" class="page-section">
-                
                 <section class="time-widget">
                     <h1 id="clock-time">00:00</h1>
                     <p id="clock-date">Chargement de la date...</p>
                 </section>
 
                 <section class="widgets-grid" style="display: flex; flex-direction: column;">
-                    
+                    <!-- WIDGET : TO-DO LIST AVANCÉE -->
                     <div class="widget card">
                         <div class="widget-header">
                             <h2>✅ Mes Tâches</h2>
                             <button id="btn-new-task" class="btn-primary" style="height: 30px; font-size: 0.8rem;">+ Nouvelle</button>
                         </div>
-
                         <div id="new-task-form" class="form-panel" style="display: none;">
                             <input type="text" id="task-title" class="msq-input" placeholder="Titre de la tâche" style="font-weight: bold;">
                             <textarea id="task-desc" class="msq-input" placeholder="Description (optionnel)" style="height: 60px; resize: none;"></textarea>
@@ -64,22 +62,20 @@
                                     <input type="checkbox" id="task-pin"> 📌 Épingler
                                 </label>
                             </div>
-                            
                             <div style="display: flex; gap: 10px; width: 100%;">
                                 <button id="btn-cancel-task" class="btn-cancel" style="flex: 1;">✕ Annuler</button>
                                 <button id="btn-save-task" class="btn-primary" style="margin-top: 0; flex: 1;">Créer</button>
                             </div>
                         </div>
-
                         <ul id="todo-list"></ul>
                     </div>
 
+                    <!-- WIDGET : NOTES AVANCÉES -->
                     <div class="widget card">
                         <div class="widget-header">
                             <h2>📝 Mes Notes</h2>
                             <button id="btn-new-note" class="btn-primary" style="height: 30px; font-size: 0.8rem;">+ Nouvelle</button>
                         </div>
-
                         <div id="new-note-form" class="form-panel" style="display: none;">
                             <input type="text" id="note-title" class="msq-input" placeholder="Titre de la note" style="font-weight: bold;">
                             <textarea id="note-content" class="msq-input" placeholder="Contenu de la note" style="height: 100px; resize: vertical;"></textarea>
@@ -92,13 +88,11 @@
                                     <div class="note-color-picker" data-color="#c8d6e5" style="background: #c8d6e5;"></div>
                                 </div>
                             </div>
-                            
                             <div style="display: flex; gap: 10px; width: 100%;">
                                 <button id="btn-cancel-note" class="btn-cancel" style="flex: 1;">✕ Annuler</button>
                                 <button id="btn-save-note" class="btn-primary" style="margin-top: 0; flex: 1;">Enregistrer</button>
                             </div>
                         </div>
-
                         <div id="notes-list" style="display: grid; grid-template-columns: 1fr; gap: 10px; max-height: 300px; overflow-y: auto;"></div>
                     </div>
                 </section>
@@ -106,19 +100,17 @@
 
             <!-- PAGE 2 : OUTILS -->
             <div id="outils" class="page-section" style="display: none;">
-                
+                <!-- Widget Planning Automatique -->
                 <div class="widget card" style="text-align: center;">
                     <div class="widget-header">
                         <h2>📅 Mon Planning</h2>
                         <button id="btn-open-settings" style="background:none; border:none; cursor:pointer; font-size: 1.2rem;" title="Configurer ma journée">⚙️</button>
                     </div>
-                    
                     <div id="pomodoro-timer-view">
                         <div id="current-phase-label" style="font-weight: 600; color: var(--msq-mint); margin-bottom: 5px;">Chargement...</div>
                         <div class="pomodoro-timer" id="pomodoro-time">00:00:00</div>
                         <div id="next-phase-label" style="font-size: 0.85rem; color: var(--text-light);">--</div>
                     </div>
-
                     <div id="pomodoro-settings-view" class="form-panel" style="display: none; text-align: left;">
                         <div style="font-size: 0.85rem; margin-bottom: 10px;">
                             <label style="display:block; margin-bottom:4px;">🟢 Début de journée</label>
@@ -142,7 +134,6 @@
                             <label style="display:block; margin-bottom:4px;">🏁 Fin de journée</label>
                             <input type="time" id="set-day-end" class="msq-input" value="18:30">
                         </div>
-                        
                         <div style="display: flex; gap: 10px; width: 100%;">
                             <button id="btn-cancel-settings" class="btn-cancel" style="flex: 1;">✕ Annuler</button>
                             <button id="btn-save-settings" class="btn-primary" style="margin-top: 0; flex: 1;">Activer</button>
@@ -155,31 +146,27 @@
                         <h2 style="margin: 0;">🔠 Convertisseur de texte</h2>
                     </div>
                     <textarea id="text-converter-input" class="msq-input" placeholder="Tapez ou collez votre texte ici..." style="height: 100px; resize: vertical; margin-bottom: 10px;"></textarea>
-                    
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                         <span style="font-size: 0.8rem; font-weight: 600; color: var(--text-light);" id="text-word-count">Mots : 0 / 200</span>
                         <button id="btn-copy-text" class="btn-outline" style="height: 30px; font-size: 0.8rem; padding: 0 10px;">📋 Copier</button>
                     </div>
-                    
                     <div style="display: flex; gap: 10px; width: 100%;">
                         <button id="btn-text-lower" class="btn-primary" style="flex: 1; margin-top: 0;">minuscules</button>
                         <button id="btn-text-upper" class="btn-primary" style="flex: 1; margin-top: 0;">MAJUSCULES</button>
                     </div>
                 </div>
-
             </div>
 
             <!-- PAGE 3 : MÉDIAS -->
             <div id="media" class="page-section" style="display: none;">
                 <div class="widget card">
                     <h2>🎵 Médias</h2>
-                    <p>Bientôt disponible...</p>
+                    <p>Le lecteur audio arrivera ici !</p>
                 </div>
             </div>
 
             <!-- PAGE 4 : THÈMES ET PARAMÈTRES -->
             <div id="themes" class="page-section" style="display: none;">
-                
                 <div class="widget card">
                     <h2>🎨 Couleurs de l'application</h2>
                     <p style="font-size: 0.85rem; margin-bottom: 15px;">Choisissez la couleur principale de votre assistant :</p>
@@ -189,7 +176,6 @@
                 <div class="widget card" style="margin-top: 15px;">
                     <h2>🌍 Localisation Météo</h2>
                     <p style="font-size: 0.85rem; margin-bottom: 15px;">Votre ville par défaut :</p>
-                    
                     <div class="custom-select-container" id="custom-city-select">
                         <div class="custom-select-trigger">
                             <span class="selected-text">📍 Antananarivo (Madagascar)</span>
@@ -210,16 +196,25 @@
                     </div>
                 </div>
             </div>
-
         </div>
-    </main>
+        
+        <!-- La Barre de navigation est maintenant DANS l'application -->
+        <nav class="bottom-nav">
+            <button class="nav-btn active" data-target="accueil">
+                <span class="icon">🏠</span><span>Accueil</span>
+            </button>
+            <button class="nav-btn" data-target="outils">
+                <span class="icon">⏱️</span><span>Outils</span>
+            </button>
+            <button class="nav-btn" data-target="media">
+                <span class="icon">🎵</span><span>Médias</span>
+            </button>
+            <button class="nav-btn" data-target="themes">
+                <span class="icon">⚙️</span><span>Réglages</span>
+            </button>
+        </nav>
 
-    <nav class="bottom-nav">
-        <button class="nav-btn active" data-target="accueil"><span class="icon">🏠</span><span>Accueil</span></button>
-        <button class="nav-btn" data-target="outils"><span class="icon">⏱️</span><span>Outils</span></button>
-        <button class="nav-btn" data-target="media"><span class="icon">🎵</span><span>Médias</span></button>
-        <button class="nav-btn" data-target="themes"><span class="icon">⚙️</span><span>Réglages</span></button>
-    </nav>
+    </main>
 
     <!-- Script pour PWA -->
     <script>
