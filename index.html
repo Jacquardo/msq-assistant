@@ -5,66 +5,231 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MSQ Assistant</title>
     
-    <!-- Lien vers le fichier CSS -->
+    <!-- Liens pour la PWA -->
+    <link rel="manifest" href="site.webmanifest">
+    <meta name="theme-color" content="#1abc9c">
+    <link rel="icon" href="assets/icons/icon-128.png">
+
     <link rel="stylesheet" href="css/style.css">
-    
-    <!-- Polices Google (Poppins pour un look moderne) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 </head>
 <body>
-    
-    <!-- Image de fond -->
+
     <div class="background-image"></div>
 
-    <!-- Conteneur principal du tableau de bord -->
     <main class="dashboard-container">
         
-        <!-- En-tête : Logo et Météo -->
         <header class="top-bar">
             <div class="logo-container">
-                <img src="assets/images/logo-msq.svg" alt="Logo MSQ Assistant" id="msq-logo">
+                <img src="assets/icons/icon-128.png" alt="Logo MSQ" id="msq-logo" style="width:25px; height:25px; border-radius:5px;">
                 <span>MSQ Assistant</span>
             </div>
-            <div class="weather-widget" id="weather-widget">
-                <!-- La météo sera injectée ici par le JS -->
-                <span id="weather-temp">--°C</span>
+            <div class="weather-widget" id="top-weather-btn" style="cursor:default;">
+                <div id="top-weather-main" style="font-weight: 600; font-size: 0.95rem; color: var(--text-main);">--°C / ⏳</div>
+                <div id="top-weather-loc" style="font-size: 0.7rem; color: var(--text-light); max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Recherche position...</div>
             </div>
         </header>
 
-        <!-- Widget Central : Heure et Date -->
-        <section class="time-widget">
-            <h1 id="clock-time">00:00</h1>
-            <p id="clock-date">Chargement de la date...</p>
-        </section>
-
-        <!-- Grille des widgets inférieurs (To-Do et Notes) -->
-        <section class="widgets-grid">
+        <div id="pages-container">
             
-            <!-- Widget To-Do List -->
-            <div class="widget card">
-                <h2>Mes Tâches</h2>
-                <ul id="todo-list">
-                    <!-- Les tâches seront générées ici -->
-                </ul>
-                <div class="input-group">
-                    <input type="text" id="todo-input" placeholder="Nouvelle tâche...">
-                    <button id="add-todo-btn">+</button>
+            <!-- PAGE 1 : ACCUEIL -->
+            <div id="accueil" class="page-section">
+                
+                <section class="time-widget">
+                    <h1 id="clock-time">00:00</h1>
+                    <p id="clock-date">Chargement de la date...</p>
+                </section>
+
+                <section class="widgets-grid" style="display: flex; flex-direction: column;">
+                    
+                    <div class="widget card">
+                        <div class="widget-header">
+                            <h2>✅ Mes Tâches</h2>
+                            <button id="btn-new-task" class="btn-primary" style="height: 30px; font-size: 0.8rem;">+ Nouvelle</button>
+                        </div>
+
+                        <div id="new-task-form" class="form-panel" style="display: none;">
+                            <input type="text" id="task-title" class="msq-input" placeholder="Titre de la tâche" style="font-weight: bold;">
+                            <textarea id="task-desc" class="msq-input" placeholder="Description (optionnel)" style="height: 60px; resize: none;"></textarea>
+                            
+                            <div style="margin-bottom: 10px;">
+                                <label style="font-size: 0.8rem; display: block; margin-bottom: 4px;">⏰ Rappel (Optionnel)</label>
+                                <input type="datetime-local" id="task-reminder" class="msq-input">
+                            </div>
+                            
+                            <div style="margin-bottom: 15px;">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="task-pin"> 📌 Épingler
+                                </label>
+                            </div>
+                            
+                            <div style="display: flex; gap: 10px; width: 100%;">
+                                <button id="btn-cancel-task" class="btn-cancel" style="flex: 1;">✕ Annuler</button>
+                                <button id="btn-save-task" class="btn-primary" style="margin-top: 0; flex: 1;">Créer</button>
+                            </div>
+                        </div>
+
+                        <ul id="todo-list"></ul>
+                    </div>
+
+                    <div class="widget card">
+                        <div class="widget-header">
+                            <h2>📝 Mes Notes</h2>
+                            <button id="btn-new-note" class="btn-primary" style="height: 30px; font-size: 0.8rem;">+ Nouvelle</button>
+                        </div>
+
+                        <div id="new-note-form" class="form-panel" style="display: none;">
+                            <input type="text" id="note-title" class="msq-input" placeholder="Titre de la note" style="font-weight: bold;">
+                            <textarea id="note-content" class="msq-input" placeholder="Contenu de la note" style="height: 100px; resize: vertical;"></textarea>
+                            
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                                <div style="display: flex; gap: 5px; align-items: center;">
+                                    <div class="note-color-picker" data-color="#ffffff" style="background: #ffffff; border: 1px solid #ccc;"></div>
+                                    <div class="note-color-picker" data-color="#ffef96" style="background: #ffef96;"></div>
+                                    <div class="note-color-picker" data-color="#ffb8b8" style="background: #ffb8b8;"></div>
+                                    <div class="note-color-picker" data-color="#c8d6e5" style="background: #c8d6e5;"></div>
+                                </div>
+                            </div>
+                            
+                            <div style="display: flex; gap: 10px; width: 100%;">
+                                <button id="btn-cancel-note" class="btn-cancel" style="flex: 1;">✕ Annuler</button>
+                                <button id="btn-save-note" class="btn-primary" style="margin-top: 0; flex: 1;">Enregistrer</button>
+                            </div>
+                        </div>
+
+                        <div id="notes-list" style="display: grid; grid-template-columns: 1fr; gap: 10px; max-height: 300px; overflow-y: auto;"></div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- PAGE 2 : OUTILS -->
+            <div id="outils" class="page-section" style="display: none;">
+                
+                <div class="widget card" style="text-align: center;">
+                    <div class="widget-header">
+                        <h2>📅 Mon Planning</h2>
+                        <button id="btn-open-settings" style="background:none; border:none; cursor:pointer; font-size: 1.2rem;" title="Configurer ma journée">⚙️</button>
+                    </div>
+                    
+                    <div id="pomodoro-timer-view">
+                        <div id="current-phase-label" style="font-weight: 600; color: var(--msq-mint); margin-bottom: 5px;">Chargement...</div>
+                        <div class="pomodoro-timer" id="pomodoro-time">00:00:00</div>
+                        <div id="next-phase-label" style="font-size: 0.85rem; color: var(--text-light);">--</div>
+                    </div>
+
+                    <div id="pomodoro-settings-view" class="form-panel" style="display: none; text-align: left;">
+                        <div style="font-size: 0.85rem; margin-bottom: 10px;">
+                            <label style="display:block; margin-bottom:4px;">🟢 Début de journée</label>
+                            <input type="time" id="set-day-start" class="msq-input" value="09:00">
+                        </div>
+                        <div style="font-size: 0.85rem; margin-bottom: 10px;">
+                            <label style="display:block; margin-bottom:4px;">🍽️ Pause Déjeuner</label>
+                            <div style="display: flex; gap: 5px; align-items: center;">
+                                <input type="time" id="set-lunch-start" class="msq-input"> à 
+                                <input type="time" id="set-lunch-end" class="msq-input">
+                            </div>
+                        </div>
+                        <div style="font-size: 0.85rem; margin-bottom: 10px;">
+                            <label style="display:block; margin-bottom:4px;">☕ Petite Pause</label>
+                            <div style="display: flex; gap: 5px; align-items: center;">
+                                <input type="time" id="set-break-start" class="msq-input"> à 
+                                <input type="time" id="set-break-end" class="msq-input">
+                            </div>
+                        </div>
+                        <div style="font-size: 0.85rem; margin-bottom: 15px;">
+                            <label style="display:block; margin-bottom:4px;">🏁 Fin de journée</label>
+                            <input type="time" id="set-day-end" class="msq-input" value="18:30">
+                        </div>
+                        
+                        <div style="display: flex; gap: 10px; width: 100%;">
+                            <button id="btn-cancel-settings" class="btn-cancel" style="flex: 1;">✕ Annuler</button>
+                            <button id="btn-save-settings" class="btn-primary" style="margin-top: 0; flex: 1;">Activer</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="widget card" style="margin-top: 15px;">
+                    <div class="widget-header">
+                        <h2 style="margin: 0;">🔠 Convertisseur de texte</h2>
+                    </div>
+                    <textarea id="text-converter-input" class="msq-input" placeholder="Tapez ou collez votre texte ici..." style="height: 100px; resize: vertical; margin-bottom: 10px;"></textarea>
+                    
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <span style="font-size: 0.8rem; font-weight: 600; color: var(--text-light);" id="text-word-count">Mots : 0 / 200</span>
+                        <button id="btn-copy-text" class="btn-outline" style="height: 30px; font-size: 0.8rem; padding: 0 10px;">📋 Copier</button>
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px; width: 100%;">
+                        <button id="btn-text-lower" class="btn-primary" style="flex: 1; margin-top: 0;">minuscules</button>
+                        <button id="btn-text-upper" class="btn-primary" style="flex: 1; margin-top: 0;">MAJUSCULES</button>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- PAGE 3 : MÉDIAS -->
+            <div id="media" class="page-section" style="display: none;">
+                <div class="widget card">
+                    <h2>🎵 Médias</h2>
+                    <p>Bientôt disponible...</p>
                 </div>
             </div>
 
-            <!-- Widget Notes -->
-            <div class="widget card">
-                <h2>Notes rapides</h2>
-                <textarea id="notes-area" placeholder="Écrivez quelque chose ici... Vos notes sont sauvegardées automatiquement."></textarea>
+            <!-- PAGE 4 : THÈMES ET PARAMÈTRES -->
+            <div id="themes" class="page-section" style="display: none;">
+                
+                <div class="widget card">
+                    <h2>🎨 Couleurs de l'application</h2>
+                    <p style="font-size: 0.85rem; margin-bottom: 15px;">Choisissez la couleur principale de votre assistant :</p>
+                    <div id="theme-palette" class="theme-palette"></div>
+                </div>
+                
+                <div class="widget card" style="margin-top: 15px;">
+                    <h2>🌍 Localisation Météo</h2>
+                    <p style="font-size: 0.85rem; margin-bottom: 15px;">Votre ville par défaut :</p>
+                    
+                    <div class="custom-select-container" id="custom-city-select">
+                        <div class="custom-select-trigger">
+                            <span class="selected-text">📍 Antananarivo (Madagascar)</span>
+                            <span class="arrow">▼</span>
+                        </div>
+                        <div class="custom-options" style="max-height: 150px; overflow-y: auto;">
+                            <div class="custom-option selected" data-value="-18.8792,47.5079">📍 Antananarivo (Madagascar)</div>
+                            <div class="custom-option" data-value="48.8566,2.3522">🗼 Paris (France)</div>
+                            <div class="custom-option" data-value="50.8503,4.3517">🍫 Bruxelles (Belgique)</div>
+                            <div class="custom-option" data-value="46.2044,6.1432">🏔️ Genève (Suisse)</div>
+                            <div class="custom-option" data-value="45.4215,-75.6972">🍁 Ottawa (Canada)</div>
+                            <div class="custom-option" data-value="14.6928,-17.4467">🌴 Dakar (Sénégal)</div>
+                            <div class="custom-option" data-value="5.3599,-4.0083">🐘 Abidjan (Côte d'Ivoire)</div>
+                            <div class="custom-option" data-value="51.5074,-0.1278">💂 Londres (Royaume-Uni)</div>
+                            <div class="custom-option" data-value="40.7128,-74.0060">🗽 New York (USA)</div>
+                            <div class="custom-option" data-value="35.6895,139.6917">🗻 Tokyo (Japon)</div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-        </section>
-
+        </div>
     </main>
 
-    <!-- Lien vers le fichier JavaScript -->
+    <nav class="bottom-nav">
+        <button class="nav-btn active" data-target="accueil"><span class="icon">🏠</span><span>Accueil</span></button>
+        <button class="nav-btn" data-target="outils"><span class="icon">⏱️</span><span>Outils</span></button>
+        <button class="nav-btn" data-target="media"><span class="icon">🎵</span><span>Médias</span></button>
+        <button class="nav-btn" data-target="themes"><span class="icon">⚙️</span><span>Réglages</span></button>
+    </nav>
+
+    <!-- Script pour PWA -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('sw.js').catch(err => console.log('SW Registration failed: ', err));
+        });
+      }
+    </script>
     <script src="js/app.js"></script>
+
 </body>
 </html>
