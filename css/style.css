@@ -24,11 +24,11 @@
 }
 
 /* =========================================
-   BASE DU POPUP
+   BASE RESPONSIVE (PWA & WEB)
    ========================================= */
 html, body {
-    width: 360px;
-    height: 550px;
+    width: 100%;
+    height: 100%;
     margin: 0;
     padding: 0;
     overflow: hidden !important;
@@ -37,20 +37,48 @@ html, body {
 body {
     font-family: 'Poppins', sans-serif;
     color: var(--text-main);
-    background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
     display: flex;
-    flex-direction: column;
+    justify-content: center; /* Centre horizontalement sur PC */
+    align-items: center;     /* Centre verticalement sur PC */
 }
 
+/* L'image de fond globale (Prend tout l'écran d'ordinateur) */
+.background-image {
+    position: fixed !important;
+    top: 0;
+    left: 0;
+    width: 100vw !important;
+    height: 100vh !important;
+    z-index: -1;
+    background-color: #2c3e50; /* Couleur de secours */
+}
+
+/* LE "TÉLÉPHONE" VIRTUEL */
 .dashboard-container {
-    flex-grow: 1; 
+    width: 100%;
+    max-width: 400px; /* Sur PC, on limite la largeur à la taille d'un grand téléphone */
+    height: 100%;
+    max-height: 850px; /* On limite la hauteur sur PC */
     display: flex;
     flex-direction: column;
-    height: 0; 
+    background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+    box-shadow: 0 15px 40px rgba(0,0,0,0.3); /* Belle ombre sur PC pour détacher l'app */
+    position: relative;
+    overflow: hidden;
+    z-index: 10;
+}
+
+/* Sur un vrai Smartphone, on enlève l'ombre et on prend 100% de l'écran */
+@media (max-width: 450px) {
+    .dashboard-container {
+        max-width: 100%;
+        max-height: 100%;
+        box-shadow: none;
+    }
 }
 
 /* =========================================
-   EN-TÊTE ET MÉTÉO (Alignement)
+   EN-TÊTE ET MÉTÉO
    ========================================= */
 .top-bar {
     display: flex;
@@ -79,12 +107,6 @@ body {
     display: flex;
     flex-direction: column;
     align-items: flex-end;
-    cursor: pointer;
-    transition: transform 0.2s ease;
-}
-
-.weather-widget:hover {
-    transform: scale(1.05);
 }
 
 #top-weather-main {
@@ -140,83 +162,6 @@ body {
 }
 
 /* =========================================
-   WIDGET MÉTÉO AVANCÉE (Couleurs forcées)
-   ========================================= */
-.weather-advanced-card {
-    background: linear-gradient(135deg, #4facfe, #0984e3) !important;
-    color: white !important;
-    border: none;
-    margin-bottom: 15px;
-    box-shadow: 0 6px 15px rgba(9, 132, 227, 0.3) !important;
-}
-
-.wa-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
-}
-
-.wa-location {
-    font-size: 1rem;
-    font-weight: 600;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.2);
-    color: white !important;
-}
-
-.wa-main {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 20px;
-    margin-bottom: 20px;
-}
-
-.wa-icon {
-    font-size: 4.5rem;
-    line-height: 1;
-    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
-}
-
-.wa-temp-box {
-    display: flex;
-    flex-direction: column;
-}
-
-.wa-temp {
-    font-size: 3rem;
-    font-weight: bold;
-    line-height: 1;
-    text-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    color: white !important;
-}
-
-.wa-desc {
-    font-size: 1rem;
-    font-weight: 500;
-    margin-top: 5px;
-    color: white !important;
-}
-
-.wa-details-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    background: rgba(0, 0, 0, 0.2) !important;
-    padding: 15px;
-    border-radius: 12px;
-    font-size: 0.85rem;
-    color: white !important;
-}
-
-.wa-detail-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    color: white !important;
-}
-
-/* =========================================
    WIDGETS ET CARTES
    ========================================= */
 .widgets-grid {
@@ -249,7 +194,7 @@ body {
 }
 
 /* =========================================
-   FORMULAIRES
+   FORMULAIRES (Verre dépoli)
    ========================================= */
 .form-panel {
     background: rgba(255, 255, 255, 0.45);
@@ -286,6 +231,10 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
     cursor: pointer;
     opacity: 0.6;
     transition: 0.2s;
+}
+input[type="time"]::-webkit-calendar-picker-indicator:hover,
+input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
+    opacity: 1;
 }
 
 .checkbox-label {
@@ -328,7 +277,6 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
     color: white;
     box-shadow: 0 2px 8px rgba(26, 188, 156, 0.2); 
 }
-
 .btn-primary:hover {
     transform: translateY(-2px); 
     box-shadow: 0 4px 12px rgba(26, 188, 156, 0.3); 
@@ -338,7 +286,6 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
     background: rgba(0, 0, 0, 0.04);
     color: var(--text-light);
 }
-
 .btn-cancel:hover {
     background: rgba(0, 0, 0, 0.08);
     color: var(--text-main);
@@ -349,6 +296,12 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
     background: transparent;
     border: 2px solid var(--text-light);
     color: var(--text-light);
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, #ff7675, #d63031);
+    color: white;
+    box-shadow: 0 2px 8px rgba(214, 48, 49, 0.2);
 }
 
 /* =========================================
@@ -373,6 +326,8 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
     position: relative;
     transition: all 0.2s ease;
 }
+
+.task-item:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
 
 .task-item.pinned {
     border-left-color: var(--msq-mint);
@@ -416,6 +371,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
     padding: 5px;
     transition: transform 0.2s;
 }
+.task-delete:hover { transform: scale(1.2); }
 
 /* =========================================
    NOTES AVANCÉES
@@ -430,6 +386,11 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
     position: relative;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
     border: 1px solid rgba(0,0,0,0.05);
+}
+
+.note-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
 }
 
 .note-header {
@@ -453,26 +414,6 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
     margin-bottom: 10px;
 }
 
-.note-attachment {
-    display: inline-block;
-    background: rgba(0,0,0,0.05);
-    padding: 5px 10px;
-    border-radius: 6px;
-    font-size: 0.8rem;
-    color: var(--msq-mint);
-    text-decoration: none;
-    font-weight: 600;
-}
-
-.note-delete {
-    background: none;
-    border: none;
-    color: #ff7675;
-    cursor: pointer;
-    font-size: 1rem;
-    transition: transform 0.2s;
-}
-
 .note-color-picker {
     width: 20px;
     height: 20px;
@@ -481,7 +422,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     transition: transform 0.2s;
 }
-.note-color-picker.selected {
+.note-color-picker:hover, .note-color-picker.selected {
     transform: scale(1.2);
     border: 2px solid var(--text-main);
 }
@@ -489,29 +430,6 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
 /* =========================================
    POMODORO ET PLANNING
    ========================================= */
-.pomodoro-modes {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-}
-
-.mode-btn {
-    background: rgba(0,0,0,0.04);
-    border: none;
-    padding: 6px 15px;
-    border-radius: 20px;
-    cursor: pointer;
-    color: var(--text-main);
-    font-family: inherit;
-    font-size: 0.9rem;
-    transition: 0.3s;
-}
-
-.mode-btn.active {
-    background: var(--msq-mint);
-    color: white;
-}
-
 .pomodoro-timer {
     font-size: 4.2rem;
     font-weight: 600;
@@ -521,12 +439,6 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
     letter-spacing: -2px;
     background: rgba(26, 188, 156, 0.05);
     border-radius: 20px;
-}
-
-.pomodoro-controls {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
 }
 
 /* =========================================
@@ -549,6 +461,11 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
     font-size: 0.9rem;
     cursor: pointer;
     transition: all 0.3s ease;
+}
+
+.custom-select-trigger:hover {
+    border-color: var(--msq-green);
+    box-shadow: 0 0 10px rgba(26, 188, 156, 0.15);
 }
 
 .custom-select-trigger .arrow {
@@ -579,6 +496,8 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
     visibility: visible;
     transform: translateY(0);
 }
+
+.custom-select-container.open .arrow { transform: rotate(180deg); }
 
 .custom-option {
     padding: 10px 15px;
@@ -616,9 +535,16 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
     font-size: 1.2rem;
     font-weight: bold;
     cursor: pointer;
+    transition: all 0.2s ease;
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+.size-btn:hover {
+    background: var(--msq-mint);
+    color: white;
+    transform: scale(1.1);
 }
 
 /* =========================================
@@ -641,6 +567,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
+.color-swatch:hover { transform: scale(1.1); }
 .color-swatch.active {
     border-color: var(--text-main);
     transform: scale(1.1);
