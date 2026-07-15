@@ -1,0 +1,64 @@
+/* =========================================
+   STYLE DE L'HORLOGE FLOTTANTE SUR LES SITES
+   ========================================= */
+
+#msq-floating-clock {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 999999; /* Toujours au-dessus de tout le reste du site */
+    padding: 12px 25px;
+    border-radius: 20px; /* Bordures adoucies pour mieux encadrer le texte */
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    
+    /* Disposition interne (Colonne pour l'heure et le message) */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    
+    cursor: move; /* Curseur de déplacement */
+    transition: transform 0.2s ease;
+}
+
+/* L'icône de l'horloge (🕒) */
+#msq-floating-clock span:first-child {
+    font-size: 28px;
+}
+
+/* Le texte principal de l'heure */
+#msq-time-text {
+    font-size: 32px; /* Agrandit l'heure */
+    font-weight: bold;
+    letter-spacing: 1.5px;
+}
+
+/* Le petit message motivant */
+#msq-motivational-msg {
+    font-size: 14.5px; /* Agrandit le message */
+    font-weight: 500;
+    opacity: 0.9;
+    text-align: center;
+    margin-top: 4px; /* Espace entre l'heure et le texte */
+}
+
+/* =========================================
+   THÈMES FIXES DE L'HORLOGE
+   ========================================= */
+
+/* (Note: Le thème "Application" dynamique est géré en JS, pas besoin de CSS ici) */
+
+#msq-floating-clock.theme-light {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    color: #2c3e50;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+#msq-floating-clock.theme-dark {
+    background: rgba(30, 30, 30, 0.95);
+    backdrop-filter: blur(10px);
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
