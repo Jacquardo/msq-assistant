@@ -1,5 +1,5 @@
 // ==========================================
-// OUTIL DE STOCKAGE WEB (Remplace Chrome Storage)
+// OUTIL DE STOCKAGE WEB (PWA)
 // ==========================================
 const storage = {
     get: (keys, callback) => {
@@ -18,7 +18,6 @@ const storage = {
     }
 };
 
-// Demande d'autorisation pour les notifications Web
 if (Notification.permission !== "granted" && Notification.permission !== "denied") {
     Notification.requestPermission();
 }
@@ -235,7 +234,6 @@ storage.get(['msq_tasks_v2'], (res) => {
     if (res.msq_tasks_v2) { tasks = res.msq_tasks_v2; renderTasks(); }
 });
 
-// Vérificateur de rappels de tâches Web
 setInterval(() => {
     const now = Date.now();
     let updated = false;
@@ -250,8 +248,25 @@ setInterval(() => {
 }, 1000);
 
 // ==========================================
-// 4. MÉTÉO WEB
+// 4. MÉTÉO WEB ET DÉTAILS AVANCÉS
 // ==========================================
+const waCard = document.getElementById('weather-advanced-card');
+const btnTopWeather = document.getElementById('top-weather-btn');
+const waLocation = document.getElementById('wa-location');
+const waIcon = document.getElementById('wa-icon');
+const waTemp = document.getElementById('wa-temp');
+const waDesc = document.getElementById('wa-desc');
+const waHumidity = document.getElementById('wa-humidity');
+const waWind = document.getElementById('wa-wind');
+const waSunrise = document.getElementById('wa-sunrise');
+const waSunset = document.getElementById('wa-sunset');
+
+if (btnTopWeather && waCard) {
+    btnTopWeather.addEventListener('click', () => {
+        waCard.style.display = waCard.style.display === 'none' ? 'block' : 'none';
+    });
+}
+
 function getWeatherCodeDetails(code, isDay) {
     const codes = {
         0: { desc: 'Ensoleillé', icon: isDay ? '☀️' : '🌙' },
@@ -268,29 +283,50 @@ function getWeatherCodeDetails(code, isDay) {
 
 async function fetchWeather(lat, lon) {
     try {
-        const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,is_day,weather_code&timezone=auto`;
+        const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,is_day,weather_code,wind_speed_10m&daily=sunrise,sunset&timezone=auto`;
         const weatherRes = await fetch(weatherUrl);
         const data = await weatherRes.json();
         const locRes = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=fr`);
         const locData = await locRes.json();
-        const info = getWeatherCodeDetails(data.current.weather_code, data.current.is_day);
         
+        const info = getWeatherCodeDetails(data.current.weather_code, data.current.is_day);
         const topMain = document.getElementById('top-weather-main');
         const topLoc = document.getElementById('top-weather-loc');
+        
+        const city = locData.city || locData.locality || "Inconnu";
+        
         if (topMain) topMain.textContent = `${Math.round(data.current.temperature_2m)}°C ${info.icon}`;
-        if (topLoc) topLoc.textContent = locData.city || locData.locality || "Inconnu";
+        if (topLoc) topLoc.textContent = city;
+
+        // Met à jour le grand panneau détaillé
+        if(waLocation) waLocation.textContent = city;
+        if(waTemp) waTemp.textContent = `${Math.round(data.current.temperature_2m)}°C`;
+        if(waIcon) waIcon.textContent = info.icon;
+        if(waDesc) waDesc.textContent = info.desc;
+        if(waHumidity) waHumidity.textContent = `${data.current.relative_humidity_2m}%`;
+        if(waWind) waWind.textContent = `${Math.round(data.current.wind_speed_10m)} km/h`;
+        
+        const sunriseDate = new Date(data.daily.sunrise[0]);
+        const sunsetDate = new Date(data.daily.sunset[0]);
+        if(waSunrise) waSunrise.textContent = sunriseDate.toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'});
+        if(waSunset) waSunset.textContent = sunsetDate.toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'});
+        
     } catch (e) {
         console.log("Erreur Météo", e);
     }
 }
 
-storage.get(['weather_fallback_coords'], (res) => {
-    let lat = -18.8792, lon = 47.5079;
-    if (res.weather_fallback_coords) {
-        [lat, lon] = res.weather_fallback_coords.split(',').map(Number);
-    }
-    fetchWeather(lat, lon);
-});
+function initWeather() {
+    storage.get(['weather_fallback_coords'], (res) => {
+        let lat = -18.8792, lon = 47.5079;
+        if (res.weather_fallback_coords) {
+            [lat, lon] = res.weather_fallback_coords.split(',').map(Number);
+        }
+        fetchWeather(lat, lon);
+    });
+}
+initWeather();
+setInterval(initWeather, 5 * 60 * 1000); 
 
 // ==========================================
 // 5. NAVIGATION WEB
@@ -451,10 +487,13 @@ document.querySelectorAll('.custom-select-container').forEach(container => {
             container.classList.remove('open');
 
             const value = option.getAttribute('data-value');
-            if (container.id === 'custom-city-select') {
+            if (container.id === 'custom-theme-select') {
+                storage.set({ floating_theme: value }, updateFloatingClockAppearance);
+            } else if (container.id === 'custom-timezone-select') {
+                storage.set({ floating_timezone: value });
+            } else if (container.id === 'custom-city-select') {
                 storage.set({ weather_fallback_coords: value }, () => {
-                    const [lat, lon] = value.split(',').map(Number);
-                    fetchWeather(lat, lon); 
+                    initWeather(); 
                 });
             }
         });
@@ -467,8 +506,219 @@ document.addEventListener('click', (e) => {
     }
 });
 
+function updateCustomSelect(containerId, value) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    
+    const targetOption = container.querySelector(`.custom-option[data-value="${value}"]`);
+    if (targetOption) {
+        container.querySelector('.selected-text').textContent = targetOption.textContent;
+        container.querySelectorAll('.custom-option').forEach(opt => opt.classList.remove('selected'));
+        targetOption.classList.add('selected');
+    }
+}
+
 // ==========================================
-// 8. THÈMES WEB
+// 8. HORLOGE FLOTTANTE (INJECTÉE DANS LA PWA)
+// ==========================================
+// Ajoute le CSS spécifique pour l'horloge flottante
+if (!document.getElementById('floating-clock-style')) {
+    const style = document.createElement('style');
+    style.id = 'floating-clock-style';
+    style.innerHTML = `
+        #msq-floating-clock {
+            position: fixed; top: 20px; left: 20px; z-index: 999999;
+            padding: 12px 25px; border-radius: 20px;
+            font-family: 'Poppins', sans-serif;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            display: flex; flex-direction: column; align-items: center; gap: 2px;
+            cursor: move; transition: transform 0.2s ease;
+        }
+        #msq-floating-clock span:first-child { font-size: 28px; }
+        #msq-time-text { font-size: 32px; font-weight: bold; letter-spacing: 1.5px; }
+        #msq-motivational-msg { font-size: 14.5px; font-weight: 500; opacity: 0.9; text-align: center; margin-top: 4px; }
+        #msq-floating-clock.theme-light { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); color: #2c3e50; border: 1px solid rgba(0,0,0,0.1); }
+        #msq-floating-clock.theme-dark { background: rgba(30, 30, 30, 0.95); backdrop-filter: blur(10px); color: #ffffff; border: 1px solid rgba(255,255,255,0.1); }
+    `;
+    document.head.appendChild(style);
+}
+
+let floatingClockElement = null;
+let floatingClockInterval = null;
+
+const motivationalMessages = [
+    "🌸 Soyez heureux.", "💪 Courage !", "🌟 Tu as un bel avenir devant toi.",
+    "❤️ Force à toi.", "✨ Tu es plus fort que tu ne le penses.",
+    "🌈 Chaque jour est une nouvelle opportunité.", "😊 N'oublie pas de sourire aujourd'hui.",
+    "🚀 Continue d'avancer.", "💖 Prends soin de toi.", "🌻 Tu peux être fier de tes progrès."
+];
+
+function getMessageDuJour() {
+    const dayOfYear = Math.floor((new Date() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
+    return motivationalMessages[dayOfYear % motivationalMessages.length];
+}
+
+function createFloatingClock() {
+    if (floatingClockElement) return;
+    floatingClockElement = document.createElement('div');
+    floatingClockElement.id = 'msq-floating-clock';
+    floatingClockElement.innerHTML = `
+        <div style="display:flex; align-items:center; gap:8px;">
+            <span>🕒</span> <span id="msq-time-text">00:00:00</span>
+        </div>
+        <div id="msq-motivational-msg">${getMessageDuJour()}</div>
+    `;
+    document.body.appendChild(floatingClockElement);
+
+    storage.get(['floating_x', 'floating_y'], (res) => {
+        if (res.floating_x && res.floating_y) {
+            floatingClockElement.style.left = res.floating_x;
+            floatingClockElement.style.top = res.floating_y;
+        }
+    });
+
+    updateFloatingClockAppearance();
+    startFloatingClock();
+    makeDraggable(floatingClockElement);
+}
+
+function removeFloatingClock() {
+    if (floatingClockElement) {
+        floatingClockElement.remove();
+        floatingClockElement = null;
+        clearInterval(floatingClockInterval);
+    }
+}
+
+function startFloatingClock() {
+    clearInterval(floatingClockInterval);
+    floatingClockInterval = setInterval(() => {
+        if (!floatingClockElement) return;
+        storage.get(['floating_timezone'], (res) => {
+            const tz = (res.floating_timezone && res.floating_timezone !== 'local') ? res.floating_timezone : undefined;
+            const options = { hour: '2-digit', minute: '2-digit', second: '2-digit', timeZone: tz };
+            document.getElementById('msq-time-text').textContent = new Intl.DateTimeFormat('fr-FR', options).format(new Date());
+        });
+    }, 1000);
+}
+
+function updateFloatingClockAppearance() {
+    if (!floatingClockElement) return;
+    storage.get(['floating_theme', 'floating_scale', 'app_theme_color1', 'app_theme_color2'], (res) => {
+        floatingClockElement.className = '';
+        floatingClockElement.style.background = '';
+        floatingClockElement.style.color = '';
+        floatingClockElement.style.border = '';
+
+        if (res.floating_theme === 'light') {
+            floatingClockElement.classList.add('theme-light');
+        } else if (res.floating_theme === 'dark') {
+            floatingClockElement.classList.add('theme-dark');
+        } else {
+            const c1 = res.app_theme_color1 || '#2ecc71';
+            const c2 = res.app_theme_color2 || '#1abc9c';
+            floatingClockElement.style.background = `linear-gradient(135deg, ${c1}, ${c2})`;
+            floatingClockElement.style.color = 'white';
+            floatingClockElement.style.border = 'none';
+        }
+        
+        const scale = res.floating_scale || 1.0;
+        floatingClockElement.style.transform = `scale(${scale})`;
+        floatingClockElement.style.transformOrigin = 'top left';
+    });
+}
+
+function makeDraggable(el) {
+    let isDragging = false;
+    let currentX, currentY, initialMouseX, initialMouseY;
+
+    const dragStart = (e) => {
+        isDragging = true;
+        initialMouseX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+        initialMouseY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
+        const rect = el.getBoundingClientRect();
+        currentX = rect.left; currentY = rect.top;
+        el.style.transition = 'none';
+    };
+
+    const dragAction = (e) => {
+        if (!isDragging) return;
+        e.preventDefault();
+        const clientX = e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
+        const clientY = e.type.includes('mouse') ? e.clientY : e.touches[0].clientY;
+        el.style.left = (currentX + (clientX - initialMouseX)) + 'px';
+        el.style.top = (currentY + (clientY - initialMouseY)) + 'px';
+    };
+
+    const dragEnd = () => {
+        if (isDragging) {
+            isDragging = false;
+            el.style.transition = 'transform 0.2s ease';
+            storage.set({ floating_x: el.style.left, floating_y: el.style.top });
+        }
+    };
+
+    el.addEventListener('mousedown', dragStart);
+    el.addEventListener('touchstart', dragStart, {passive: false});
+    document.addEventListener('mousemove', dragAction);
+    document.addEventListener('touchmove', dragAction, {passive: false});
+    document.addEventListener('mouseup', dragEnd);
+    document.addEventListener('touchend', dragEnd);
+}
+
+const btnToggleFloating = document.getElementById('toggle-floating');
+const btnSizeMinus = document.getElementById('size-minus');
+const btnSizePlus = document.getElementById('size-plus');
+const btnSizeReset = document.getElementById('size-reset');
+
+storage.get(['floating_active', 'floating_theme', 'floating_timezone'], (res) => {
+    if (res.floating_active && btnToggleFloating) {
+        btnToggleFloating.textContent = "Masquer l'horloge";
+        btnToggleFloating.className = 'btn-cancel';
+        btnToggleFloating.style.width = '100%';
+        btnToggleFloating.style.marginBottom = '15px';
+        createFloatingClock(); // Affiche l'horloge au démarrage
+    }
+    if (res.floating_theme) updateCustomSelect('custom-theme-select', res.floating_theme);
+    if (res.floating_timezone) updateCustomSelect('custom-timezone-select', res.floating_timezone);
+});
+
+if(btnToggleFloating) {
+    btnToggleFloating.addEventListener('click', () => {
+        storage.get(['floating_active'], (res) => {
+            const newState = !res.floating_active;
+            storage.set({ floating_active: newState });
+            
+            if (newState) {
+                btnToggleFloating.textContent = "Masquer l'horloge";
+                btnToggleFloating.className = 'btn-cancel';
+                createFloatingClock();
+            } else {
+                btnToggleFloating.textContent = "Afficher l'horloge";
+                btnToggleFloating.className = 'btn-outline';
+                removeFloatingClock();
+            }
+        });
+    });
+}
+
+function changeScale(amount) {
+    storage.get(['floating_scale'], (res) => {
+        let currentScale = res.floating_scale || 1.0;
+        currentScale = amount === 0 ? 1.0 : currentScale + amount;
+        if (currentScale < 0.5) currentScale = 0.5;
+        if (currentScale > 2.5) currentScale = 2.5;
+        storage.set({ floating_scale: currentScale }, updateFloatingClockAppearance);
+    });
+}
+
+if(btnSizeMinus) btnSizeMinus.addEventListener('click', () => changeScale(-0.1));
+if(btnSizePlus) btnSizePlus.addEventListener('click', () => changeScale(0.1));
+if(btnSizeReset) btnSizeReset.addEventListener('click', () => changeScale(0));
+
+
+// ==========================================
+// 9. THÈMES WEB
 // ==========================================
 const appThemes = [
     { name: 'Vert MSQ', c1: '#2ecc71', c2: '#1abc9c' },
@@ -479,7 +729,6 @@ const appThemes = [
     { name: 'Orange', c1: '#e67e22', c2: '#d35400' },
     { name: 'Rouge', c1: '#ff7675', c2: '#d63031' },
     { name: 'Cyan', c1: '#00cec9', c2: '#00b894' },
-    { name: 'Marron', c1: '#cd6133', c2: '#b33939' },
     { name: 'Gris', c1: '#b2bec3', c2: '#636e72' }
 ];
 
@@ -500,6 +749,7 @@ if(themePalette) {
             swatch.addEventListener('click', () => {
                 storage.set({ app_theme_color1: theme.c1, app_theme_color2: theme.c2 });
                 applyThemeColors(theme.c1, theme.c2);
+                updateFloatingClockAppearance();
                 window.location.reload(); 
             });
             themePalette.appendChild(swatch);
@@ -512,7 +762,7 @@ storage.get(['app_theme_color1', 'app_theme_color2'], (res) => {
 });
 
 // ==========================================
-// 9. FOND D'ÉCRAN DYNAMIQUE
+// 10. FOND D'ÉCRAN DYNAMIQUE
 // ==========================================
 function setDailyBackground() {
     const bg = document.querySelector('.background-image');
@@ -525,7 +775,7 @@ function setDailyBackground() {
 setDailyBackground();
 
 // ==========================================
-// 10. CONVERTISSEUR DE TEXTE
+// 11. CONVERTISSEUR DE TEXTE
 // ==========================================
 const textConverterInput = document.getElementById('text-converter-input');
 const textWordCount = document.getElementById('text-word-count');
@@ -557,7 +807,7 @@ if (textConverterInput) {
 }
 
 // ==========================================
-// 11. GESTION DE L'INSTALLATION PWA
+// 12. GESTION DE L'INSTALLATION PWA
 // ==========================================
 let deferredPrompt;
 const installBanner = document.getElementById('pwa-install-banner');
