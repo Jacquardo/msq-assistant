@@ -1,6 +1,6 @@
 {
-  "name": "MSQ Assistant",
-  "short_name": "MSQ",
+  "name": "BOYWO - Boost Your Work",
+  "short_name": "BOYWO",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#ffffff",
